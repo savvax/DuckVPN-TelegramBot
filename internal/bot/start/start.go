@@ -2,21 +2,21 @@ package start
 
 import (
 	"bot/internal/bot/handlers"
+	"bot/internal/lib/logger/sl"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"log"
+	"log/slog"
 )
 
-func StartBot(token, providerToken string) {
-	//TODO transfer the token to the configuration file
+func StartBot(token, providerToken string, log *slog.Logger) {
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
-		log.Panic(err)
+		log.Error("Failed to initialize bot:", err)
 	}
 
 	bot.Debug = true
 
 	//TODO: поменять имя бота в BotFather
-	log.Printf("Authorized on account %s", bot.Self.UserName)
+	log.Info("Authorized on account", slog.String("username", bot.Self.UserName))
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
@@ -30,10 +30,10 @@ func StartBot(token, providerToken string) {
 
 			command := update.Message.Command()
 			if command != "" {
-				log.Printf("Received command: %s", command)
+				log.Info("received empty command", sl.Err(err))
 				handlers.HandleCommand(bot, update.Message)
 			} else {
-				log.Printf("Received text message: %s", update.Message.Text)
+				log.Info("received text message: %s", slog.String("text", update.Message.Text))
 				// Обрабатываем обычное сообщение
 				handlers.HandleTextMessage(bot, update.Message)
 			}
