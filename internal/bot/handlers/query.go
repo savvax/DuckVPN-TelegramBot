@@ -3,25 +3,39 @@ package handlers
 import (
 	"bot/internal/bot/keyboard"
 	"bot/internal/bot/messages"
+	"bot/internal/lib/logger/sl"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"log/slog"
 )
 
-func HandleQuery(bot *tgbotapi.BotAPI, providerToken string, query *tgbotapi.CallbackQuery) {
+func HandleQuery(bot *tgbotapi.BotAPI, providerToken string, query *tgbotapi.CallbackQuery, log *slog.Logger) {
 	switch query.Data {
 	case "main":
-		edit := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, "Главное меню (Main)")
-		edit.ReplyMarkup = &keyboard.MainKeyboard
-		bot.Send(edit)
+		msg := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, "Главное меню (Main)")
+		msg.ReplyMarkup = &keyboard.MainKeyboard
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Query main error", sl.Err(err))
+		}
 	case "VPN":
-		edit := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, messages.Msgs["VPN"]) //TODO ищменить текст
+		msg := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, messages.Msgs["VPN"]) //TODO ищменить текст
 		//edit.ParseMode = "MarkdownV2"
-		edit.ReplyMarkup = &keyboard.VpnKeyboard
-		bot.Send(edit)
+		msg.ReplyMarkup = &keyboard.VpnKeyboard
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Query VPN error", sl.Err(err))
+		}
 	case "free_VPN":
-		edit := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, messages.Msgs["free_VPN"])
-		edit.ParseMode = "HTML"
-		edit.ReplyMarkup = &keyboard.FreeVPNKeyboard
-		bot.Send(edit)
+		msg := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, messages.Msgs["free_VPN"])
+		msg.ParseMode = "HTML"
+		msg.ReplyMarkup = &keyboard.FreeVPNKeyboard
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Query free_VPN error", sl.Err(err))
+		}
 	case "get_free_VPN_key_NL":
 		//TODO Проверка в бд и выдача ключа
 		//message := tgbotapi.NewMessage(query.Message.Chat.ID, "core.Msgs[\"get_free_VPN_key_NL\"]")
@@ -60,17 +74,29 @@ func HandleQuery(bot *tgbotapi.BotAPI, providerToken string, query *tgbotapi.Cal
 		bot.Send(deleteMsg)
 		msg := tgbotapi.NewMessage(query.Message.Chat.ID, "Чтобы вернуться назад, нажмете:")
 		msg.ReplyMarkup = &keyboard.ReturnPaidKeyVPNKeyboard
-		bot.Send(msg)
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Query subscription_30 error", sl.Err(err))
+		}
 
 	case "paid_VPN":
-		edit := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, messages.Msgs["paid_VPN"])
-		edit.ReplyMarkup = &keyboard.PaidVPNKeyboard
-		bot.Send(edit)
+		msg := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, messages.Msgs["paid_VPN"])
+		msg.ReplyMarkup = &keyboard.PaidVPNKeyboard
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Query paid_VPN error", sl.Err(err))
+		}
 	case "get_paid_VPN_key_NL":
 		//TODO добавить проверку наличия возможнрости выдать платный ключ
-		edit := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, messages.Msgs["get_paid_VPN_key_NL"])
-		edit.ReplyMarkup = &keyboard.PaidVPNNLKeyboard
-		bot.Send(edit)
+		msg := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, messages.Msgs["get_paid_VPN_key_NL"])
+		msg.ReplyMarkup = &keyboard.PaidVPNNLKeyboard
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Query get_paid_VPN_key_NL error", sl.Err(err))
+		}
 
 	case "get_paid_VPN_key_NL_30":
 		deleteMsg := tgbotapi.NewDeleteMessage(query.Message.Chat.ID, query.Message.MessageID)
@@ -80,7 +106,11 @@ func HandleQuery(bot *tgbotapi.BotAPI, providerToken string, query *tgbotapi.Cal
 		bot.Send(deleteMsg)
 		msg := tgbotapi.NewMessage(query.Message.Chat.ID, "Чтобы вернуться назад, нажмете:")
 		msg.ReplyMarkup = &keyboard.ReturnPaidKeyVPNKeyboard
-		bot.Send(msg)
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Query get_paid_VPN_key_NL_30 error", sl.Err(err))
+		}
 
 	case "get_paid_VPN_key_NL_120":
 		//TODO - резервация ключа
@@ -91,7 +121,11 @@ func HandleQuery(bot *tgbotapi.BotAPI, providerToken string, query *tgbotapi.Cal
 		bot.Send(deleteMsg)
 		msg := tgbotapi.NewMessage(query.Message.Chat.ID, "Чтобы вернуться назад, нажмете:")
 		msg.ReplyMarkup = &keyboard.ReturnPaidKeyVPNKeyboard
-		bot.Send(msg)
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Query get_paid_VPN_key_NL_120 error", sl.Err(err))
+		}
 
 	//case "get_paid_VPN_key_RU":
 	//	//TODO добавить проверку наличия возможнрости выдать платный ключ
@@ -104,17 +138,29 @@ func HandleQuery(bot *tgbotapi.BotAPI, providerToken string, query *tgbotapi.Cal
 	//	msg.ReplyMarkup = &ReturnPaidKeyVPNKeyboard
 	//	DuckVPN-TelegramBot.Send(msg)
 	case "apps":
-		edit := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, "скачать приложение")
-		edit.ReplyMarkup = &keyboard.AppsKeyboard
-		bot.Send(edit)
+		msg := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, "скачать приложение")
+		msg.ReplyMarkup = &keyboard.AppsKeyboard
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Query apps error", sl.Err(err))
+		}
 	case "my_keys":
-		edit := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, "РАЗДЕЛ \"МОИ КЛЮЧИ\" ")
-		edit.ReplyMarkup = &keyboard.MyKeysKeyboard
-		bot.Send(edit)
+		msg := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, "РАЗДЕЛ \"МОИ КЛЮЧИ\" ")
+		msg.ReplyMarkup = &keyboard.MyKeysKeyboard
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Query my_keys error", sl.Err(err))
+		}
 	case "my_paid_keys":
-		edit := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, "Ваши платные ключ: ")
-		edit.ReplyMarkup = &keyboard.MyPaidKeysKeyboard
-		bot.Send(edit)
+		msg := tgbotapi.NewEditMessageText(query.Message.Chat.ID, query.Message.MessageID, "Ваши платные ключ: ")
+		msg.ReplyMarkup = &keyboard.MyPaidKeysKeyboard
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Query my_keys error", sl.Err(err))
+		}
 	case "my_free_key":
 		//TODO запросы к базе данных
 	}

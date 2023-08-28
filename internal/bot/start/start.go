@@ -44,7 +44,7 @@ func BotStart(token, providerToken string, log *slog.Logger) {
 
 			// query processing
 			log.Info("received query", slog.String("query", update.CallbackQuery.Data))
-			handlers.HandleQuery(bot, providerToken, update.CallbackQuery)
+			handlers.HandleQuery(bot, providerToken, update.CallbackQuery, log)
 		} else if update.PreCheckoutQuery != nil {
 			//antispam
 			//antiSpamCheck(DuckVPN-TelegramBot, update.PreCheckoutQuery.From.ID)
