@@ -4,6 +4,7 @@ import (
 	"bot/internal/bot/keyboard"
 	"bot/internal/bot/messages"
 	"bot/internal/lib/logger/sl"
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"log/slog"
 )
@@ -112,14 +113,26 @@ func HandleQuery(bot *tgbotapi.BotAPI, providerToken string, query *tgbotapi.Cal
 		deleteMsg := tgbotapi.NewDeleteMessage(query.Message.Chat.ID, query.Message.MessageID)
 		invoice := tgbotapi.NewInvoice(int64(query.From.ID), "VPN (NL)", "VPN на 30 дней c сервером в Нидерландах", "paid_VPN_NL_30_days",
 			providerToken, "StartParameter", "RUB", &[]tgbotapi.LabeledPrice{{"Label", 20000}})
-		bot.Send(invoice)
-		bot.Send(deleteMsg)
-		msg := tgbotapi.NewMessage(query.Message.Chat.ID, "Чтобы вернуться назад, нажмете:")
-		msg.ReplyMarkup = &keyboard.ReturnPaidKeyVPNKeyboard
-		_, err := bot.Send(msg)
+		_, err := bot.Send(invoice)
+		if err != nil {
+			log.Info("Sending the invoice error (get_paid_VPN_key_NL_30)", sl.Err(err))
+			fmt.Println("err")
+		} else {
+			log.Info("Invoice send (get_paid_VPN_key_NL_30)")
+			fmt.Println("else")
+		}
+
+		_, err = bot.Send(deleteMsg)
 		if err != nil {
 			// TODO: добавить user id
-			log.Info("Query get_paid_VPN_key_NL_30 error", sl.Err(err))
+			log.Info("Text Deleting message (invoice) error  (get_paid_VPN_key_NL_30)", sl.Err(err))
+		}
+		msg2 := tgbotapi.NewMessage(query.Message.Chat.ID, "Чтобы вернуться назад, нажмете:")
+		msg2.ReplyMarkup = &keyboard.ReturnPaidKeyVPNKeyboard
+		_, err = bot.Send(msg2)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Text get_paid_VPN_key_NL_30 error", sl.Err(err))
 		}
 
 	case "get_paid_VPN_key_NL_120":

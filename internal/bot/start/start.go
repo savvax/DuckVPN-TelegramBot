@@ -50,7 +50,8 @@ func BotStart(token, providerToken string, log *slog.Logger) {
 			//antiSpamCheck(DuckVPN-TelegramBot, update.PreCheckoutQuery.From.ID)
 
 			// PreCheckoutQuery processing
-			log.Info("received PreCheckoutQuery", slog.String("PreCheckoutQuery", update.CallbackQuery.Data))
+			//TODO: найти ошибку при разкомментированной строке ниже (log.Info...)
+			//log.Info("received PreCheckoutQuery", slog.String("PreCheckoutQuery", update.CallbackQuery.Data))
 			handlers.HandlePreCheckoutQuery(bot, update)
 		} else if update.Message != nil && update.Message.SuccessfulPayment == nil {
 			//обработка неудачного платежа
