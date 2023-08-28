@@ -3,12 +3,14 @@ package handlers
 import (
 	"bot/internal/bot/keyboard"
 	"bot/internal/bot/messages"
+	"bot/internal/lib/logger/sl"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"log/slog"
 	"strconv"
 )
 
-func HandleTextMessage(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
+func HandleTextMessage(log *slog.Logger, bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 	//TODO обработка сообщений
 
 	if message.SuccessfulPayment != nil {
@@ -128,7 +130,7 @@ func HandleTextMessage(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 			fmt.Println("ERROR")
 		}
 	} else if state, exists := userStates[message.Chat.ID]; exists {
-		processNonCommandMessage(bot, message, state)
+		processNonCommandMessage(log, bot, message, state)
 	} else if message.Text != "" {
 		if message.Text == messages.Msgs["get_free_VPN_key_NL"] {
 			//base64string, key, location, encryption, password, address, port, err := database.FreeKeyProcess(message.Chat.ID, message.Text)
@@ -150,18 +152,23 @@ func HandleTextMessage(bot *tgbotapi.BotAPI, message *tgbotapi.Message) {
 			//msg.DisableWebPagePreview = true
 			//TODO регулярное выражение по изменению ключа, отброс "outline=1" и добавление локации сервера
 			//msg2 := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprint(keyRefrashed))
-			msg3 := tgbotapi.NewMessage(message.Chat.ID, "Вернуться в главное меню")
-			msg3.ReplyMarkup = &keyboard.ReturnToMain
+			msg := tgbotapi.NewMessage(message.Chat.ID, "Вернуться в главное меню")
+			msg.ReplyMarkup = &keyboard.ReturnToMain
 
 			//DuckVPN-TelegramBot.Send(msg)
 			//DuckVPN-TelegramBot.Send(msg2)
-			bot.Send(msg3)
+			_, err := bot.Send(msg)
+			if err != nil {
+				// TODO: добавить user id
+				// TODO: изменить при именеии ключа в словаре с сообщениями
+				log.Info("Text get_free_VPN_key_NL error", sl.Err(err))
+			}
 		}
 
 	}
 }
 
-func processNonCommandMessage(bot *tgbotapi.BotAPI, message *tgbotapi.Message, state *UserState) {
+func processNonCommandMessage(log *slog.Logger, bot *tgbotapi.BotAPI, message *tgbotapi.Message, state *UserState) {
 	state, exists := userStates[message.Chat.ID]
 	if !exists {
 		return
@@ -171,24 +178,40 @@ func processNonCommandMessage(bot *tgbotapi.BotAPI, message *tgbotapi.Message, s
 	case 1:
 		state.ApiURL = message.Text
 		msg := tgbotapi.NewMessage(message.Chat.ID, "Enter max keys:")
-		bot.Send(msg)
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Text processNonCommandMessage state 1 error", sl.Err(err))
+		}
 		state.Step++
 	case 2:
 		// TODO: Add proper integer parsing and validation
 		// TODO wrap error
 		state.MaxKeys, _ = strconv.Atoi(message.Text)
 		msg := tgbotapi.NewMessage(message.Chat.ID, "Enter region code:")
-		bot.Send(msg)
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Text processNonCommandMessage state 2 error", sl.Err(err))
+		}
 		state.Step++
 	case 3:
 		state.RegionCode = message.Text
 		msg := tgbotapi.NewMessage(message.Chat.ID, "Enter server type:")
-		bot.Send(msg)
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Text processNonCommandMessage state 3 error", sl.Err(err))
+		}
 		state.Step++
 	case 4:
 		state.ServerType = message.Text
 		msg := tgbotapi.NewMessage(message.Chat.ID, "Enter blocked status (true/false):")
-		bot.Send(msg)
+		_, err := bot.Send(msg)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Text processNonCommandMessage state 4 error", sl.Err(err))
+		}
 		state.Step++
 	case 5:
 		// TODO: Add proper boolean parsing and validation

@@ -36,7 +36,7 @@ func BotStart(token, providerToken string, log *slog.Logger) {
 			} else {
 				// message processing
 				log.Info("received text message", slog.String("text", update.Message.Text))
-				handlers.HandleTextMessage(bot, update.Message)
+				handlers.HandleTextMessage(log, bot, update.Message)
 			}
 		} else if update.CallbackQuery != nil {
 			//antispam
