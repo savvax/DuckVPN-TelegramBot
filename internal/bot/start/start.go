@@ -7,7 +7,7 @@ import (
 	"log/slog"
 )
 
-func StartBot(token, providerToken string, log *slog.Logger) {
+func BotStart(token, providerToken string, log *slog.Logger) {
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.Error("Failed to initialize bot:", err)
@@ -30,28 +30,41 @@ func StartBot(token, providerToken string, log *slog.Logger) {
 
 			command := update.Message.Command()
 			if command != "" {
-				log.Info("received empty command", sl.Err(err))
-				handlers.HandleCommand(bot, update.Message)
+				// command processing
+				log.Info("received empty command", slog.String("command", command))
+				handlers.HandleCommand(bot, update.Message) //
 			} else {
-				log.Info("received text message: %s", slog.String("text", update.Message.Text))
-				// Обрабатываем обычное сообщение
+				// message processing
+				log.Info("received text message", slog.String("text", update.Message.Text))
 				handlers.HandleTextMessage(bot, update.Message)
 			}
 		} else if update.CallbackQuery != nil {
-
 			//antispam
 			//antiSpamCheck(DuckVPN-TelegramBot, update.CallbackQuery.From.ID)
 
+			// query processing
+			log.Info("received query", slog.String("query", update.CallbackQuery.Data))
 			handlers.HandleQuery(bot, providerToken, update.CallbackQuery)
 		} else if update.PreCheckoutQuery != nil {
 			//antispam
 			//antiSpamCheck(DuckVPN-TelegramBot, update.PreCheckoutQuery.From.ID)
 
+			// PreCheckoutQuery processing
+			log.Info("received PreCheckoutQuery", slog.String("PreCheckoutQuery", update.CallbackQuery.Data))
 			handlers.HandlePreCheckoutQuery(bot, update)
 		} else if update.Message != nil && update.Message.SuccessfulPayment == nil {
 			//обработка неудачного платежа
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Payment unsuccessful. Please try again.")
-			bot.Send(msg)
+
+			// PreCheckoutQuery processing
+			log.Info("potential PreCheckoutQuery error", slog.String("PreCheckoutQueryError", update.CallbackQuery.Data))
+			// TODO: добавить сообщение в пул сообщений
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Свяжитесь с поддержкой бота")
+
+			_, err := bot.Send(msg)
+			if err != nil {
+				// TODO: добавить user id
+				log.Info("potential PreCheckoutQuery (processing) error (message send error)", sl.Err(err))
+			}
 		}
 	}
 }

@@ -26,7 +26,7 @@ func main() {
 	done := make(chan bool)
 
 	go func() {
-		bot.StartBot(cfg.Token, cfg.ProviderToken, log)
+		bot.BotStart(cfg.Token, cfg.ProviderToken, log)
 		done <- true
 	}()
 
