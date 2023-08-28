@@ -159,7 +159,7 @@ func HandleQuery(bot *tgbotapi.BotAPI, providerToken string, query *tgbotapi.Cal
 		_, err := bot.Send(msg)
 		if err != nil {
 			// TODO: добавить user id
-			log.Info("Query my_keys error", sl.Err(err))
+			log.Info("Query my_paid_keys error", sl.Err(err))
 		}
 	case "my_free_key":
 		//TODO запросы к базе данных
