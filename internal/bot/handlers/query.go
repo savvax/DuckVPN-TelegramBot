@@ -70,14 +70,24 @@ func HandleQuery(bot *tgbotapi.BotAPI, providerToken string, query *tgbotapi.Cal
 		deleteMsg := tgbotapi.NewDeleteMessage(query.Message.Chat.ID, query.Message.MessageID)
 		invoice := tgbotapi.NewInvoice(int64(query.From.ID), "Subscription", "Купить подписку на 30 дней", "subscription_30_days",
 			providerToken, "StartParameterSubscription", "RUB", &[]tgbotapi.LabeledPrice{{"Label", 20000}})
-		bot.Send(invoice)
-		bot.Send(deleteMsg)
-		msg := tgbotapi.NewMessage(query.Message.Chat.ID, "Чтобы вернуться назад, нажмете:")
-		msg.ReplyMarkup = &keyboard.ReturnPaidKeyVPNKeyboard
-		_, err := bot.Send(msg)
+		_, err := bot.Send(invoice)
+		if err != nil {
+			log.Info("Sending the invoice error (subscription_30)", sl.Err(err))
+		} else {
+			log.Info("Invoice send (subscription_30)")
+		}
+
+		_, err = bot.Send(deleteMsg)
 		if err != nil {
 			// TODO: добавить user id
-			log.Info("Query subscription_30 error", sl.Err(err))
+			log.Info("Text Deleting message (invoice) error  (subscription_30)", sl.Err(err))
+		}
+		msg2 := tgbotapi.NewMessage(query.Message.Chat.ID, "Чтобы вернуться назад, нажмете:")
+		msg2.ReplyMarkup = &keyboard.ReturnPaidKeyVPNKeyboard
+		_, err = bot.Send(msg2)
+		if err != nil {
+			// TODO: добавить user id
+			log.Info("Text subscription_30 error", sl.Err(err))
 		}
 
 	case "paid_VPN":
