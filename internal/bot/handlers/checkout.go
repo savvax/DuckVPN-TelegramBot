@@ -5,8 +5,6 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-var x int
-
 func HandlePreCheckoutQuery(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	pca := tgbotapi.PreCheckoutConfig{
 		OK:                 true,

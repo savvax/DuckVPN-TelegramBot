@@ -32,7 +32,7 @@ func BotStart(token, providerToken string, log *slog.Logger) {
 			if command != "" {
 				// command processing
 				log.Info("received empty command", slog.String("command", command))
-				handlers.HandleCommand(bot, update.Message) //
+				handlers.HandleCommand(bot, update.Message, log) //
 			} else {
 				// message processing
 				log.Info("received text message", slog.String("text", update.Message.Text))
@@ -58,6 +58,7 @@ func BotStart(token, providerToken string, log *slog.Logger) {
 			// PreCheckoutQuery processing
 			log.Info("potential PreCheckoutQuery error", slog.String("PreCheckoutQueryError", update.CallbackQuery.Data))
 			// TODO: добавить сообщение в пул сообщений
+			// определить, выносить ли на уровень ниже отправку сообщения
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Свяжитесь с поддержкой бота")
 
 			_, err := bot.Send(msg)
